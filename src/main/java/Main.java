@@ -1,74 +1,50 @@
 import io.reactivex.Observable;
-
-import java.util.Arrays;
-import java.util.List;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 /**
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/0vqAcND_yas
+ * https://youtu.be/uaAcSxXjxrw
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * In multiple different ways available we've shown three very common and important way
- * to create Observables
+ * We've created the Observer interface so we can pass it to the subscribe method
+ * and do the required task on onNext(), onError() and onComplete() overridden method
+ * onNext() method emits the item available on the Observable source, one by one
+ * onError() method throws an error if something goes wrong while the emission
+ * onComplete() method let us know if the emission ends
+ * N.B. We don't get the onComplete() callback if we ever get to the onError()
  * <p>
- * Created By Mithu Roy on 09/02/2019
+ * Created By Mithu Roy on 16/02/2019
  */
 
 public class Main {
     public static void main(String[] args) {
-        createObservableWithJust();
-        createObservableFromIterable();
-        createObservableUsingCreate();
-    }
-
-    /**
-     * In this method we've created an integer observable
-     * using Observable's static method just()
-     * This method converts the items provided to an Observable
-     * So later we can subscribe and get the item one by one to take action
-     */
-    private static void createObservableWithJust() {
         Observable<Integer> observable = Observable.just(1, 2, 3, 4, 5);
 
-        observable.subscribe(item -> System.out.println(item));
-    }
+        Observer<Integer> observer = new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // We're going to discuss about onSubscribe() on upcoming episodes
+            }
 
-    /**
-     * In this method we've created an integer observable
-     * using Observable's static method fromIterable()
-     * This method converts anything which extend or implement iterable, to an observable
-     * So later we can subscribe and get the item one by one to take action
-     */
-    private static void createObservableFromIterable() {
-        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
-        Observable<Integer> observable = Observable.fromIterable(list);
+            @Override
+            public void onNext(Integer integer) {
+                System.out.println(integer);
+            }
 
-        observable.subscribe(item -> System.out.println(item));
-    }
+            @Override
+            public void onError(Throwable e) {
+                System.out.println(e.getLocalizedMessage());
+            }
 
-    /**
-     * In this method we've created an integer observable
-     * using Observable's static method create()
-     * Emitter here is an interface
-     * By calling it's onNext(), onComplete() and onError() method
-     * we can push events to our subscribers
-     * So our subscribers can subscribe and get the item one by one to take action
-     */
-    private static void createObservableUsingCreate() {
-        Observable<Integer> observable = Observable.create(emitter -> {
-            emitter.onNext(1);
-            emitter.onNext(2);
-            emitter.onNext(3);
-            emitter.onNext(4);
-            emitter.onNext(5);
-            emitter.onNext(null);
-            emitter.onComplete();
-        });
+            @Override
+            public void onComplete() {
+                System.out.println("Completed");
+            }
+        };
 
-        observable.subscribe(item -> System.out.println(item),
-                error -> System.out.println("There was error: " + error.getLocalizedMessage()),
-                () -> System.out.println("Completed"));
+        observable.subscribe(observer);
     }
 }
