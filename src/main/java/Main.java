@@ -1,50 +1,67 @@
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.ConnectableObservable;
+
+import static java.lang.Thread.sleep;
 
 /**
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/uaAcSxXjxrw
+ * https://youtu.be/cZRodTYKlUs
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * We've created the Observer interface so we can pass it to the subscribe method
- * and do the required task on onNext(), onError() and onComplete() overridden method
- * onNext() method emits the item available on the Observable source, one by one
- * onError() method throws an error if something goes wrong while the emission
- * onComplete() method let us know if the emission ends
- * N.B. We don't get the onComplete() callback if we ever get to the onError()
+ * We've created Cold Observable using Observable.just()
+ * and paused the thread to prove whether it is really Cold Observable
+ * and we also created Hot Observable using by converting a Cold Observable
+ * to a Hot Observable using Connectable Observable
  * <p>
  * Created By Mithu Roy on 16/02/2019
  */
 
 public class Main {
     public static void main(String[] args) {
+        createColdObservable();
+        createHotAndConnectableObservable();
+    }
+
+    /**
+     * Creates Cold Observable using Observable.just()
+     * Because each and every onNext() gets their separate emission
+     */
+    private static void createColdObservable() {
         Observable<Integer> observable = Observable.just(1, 2, 3, 4, 5);
 
-        Observer<Integer> observer = new Observer<Integer>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                // We're going to discuss about onSubscribe() on upcoming episodes
-            }
+        observable.subscribe(item -> System.out.println("Observer 1: " + item));
 
-            @Override
-            public void onNext(Integer integer) {
-                System.out.println(integer);
-            }
+        pause(3000);
 
-            @Override
-            public void onError(Throwable e) {
-                System.out.println(e.getLocalizedMessage());
-            }
+        observable.subscribe(item -> System.out.println("Observer 2: " + item));
+    }
 
-            @Override
-            public void onComplete() {
-                System.out.println("Completed");
-            }
-        };
+    /**
+     * Creates a Hot Observable
+     * The moment we call the publish() method on Observable.just()
+     * It Converts the Observable to a Connectable Observable
+     * Connectable Observable doesn't start it's emission right after you subscribe
+     * The moment we call connect() method it starts emission
+     * Any Observer which subscribes after calling connect() misses emissions
+     */
+    private static void createHotAndConnectableObservable() {
+        ConnectableObservable<Integer> observable = Observable.just(1, 2, 3, 4, 5).publish();
 
-        observable.subscribe(observer);
+        observable.subscribe(item -> System.out.println("Observer 1: " + item));
+    }
+
+    /**
+     * This method sleep the main thread for specified duration
+     *
+     * @param duration Sleep Duration in Milliseconds
+     */
+    private static void pause(int duration) {
+        try {
+            sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
