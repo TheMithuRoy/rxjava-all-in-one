@@ -4,27 +4,34 @@ import io.reactivex.Observable;
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/RnU9nGJcbfo
+ * https://youtu.be/aWhhgVblLDU
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * We've created Observable using Observable.defer()
+ * We've created Observable using Observable.fromCallable()
  * Which Delegates the item generation just before it reaches to the onNext()
- * So that every Observers get a new instance, and stay updated with the new value
+ * So that it doesn't throw exception
+ * And instead you can get a callback on your onError()
  * <p>
- * Created By Mithu Roy on 10/03/2019
+ * Created By Mithu Roy on 14/03/2019
  */
 
 public class Main {
-    private static int start = 5, count = 2;
 
     public static void main(String[] args) {
-        // it prints from start up to (start + count - 1)
-        Observable<Integer> observable = Observable.defer(() -> {
-            System.out.println("New Observable is created with start = " + start + " and count = " + count);
-            return Observable.range(start, count);
+        Observable<Integer> observable = Observable.fromCallable(() -> {
+            System.out.println("Calling Method");
+            return getNumber();
         });
-        observable.subscribe(item -> System.out.println("Observer 1: " + item));
-        count = 3;
-        observable.subscribe(item -> System.out.println("Observer 2: " + item));
+        observable.subscribe(System.out::println,
+                error -> System.out.println("An Exception Occurred" + error.getLocalizedMessage()));
+    }
+
+    /***
+     * This method returns an expression which is an int
+     * @return a dummy expression (int)
+     */
+    private static int getNumber() {
+        System.out.println("Generating Value");
+        return 1 / 0;
     }
 }
