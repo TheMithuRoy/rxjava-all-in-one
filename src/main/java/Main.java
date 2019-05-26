@@ -4,55 +4,39 @@ import io.reactivex.Observable;
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/M6aoMdjFmXI
+ * https://youtu.be/6IwEvHH_BRk
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * Here we've used distinct and distinctUntilChanged and their two overloads
+ * Here we've used defaultIfEmpty and switchIfEmpty to emit default value and switch Observable Sources respectively
  * <p>
- * Created By Mithu Roy on 12/05/2019
+ * Created By Mithu Roy on 19/05/2019
  */
 
 public class Main {
     public static void main(String[] args) {
-        distinctOperator();
-        distinctWithKeySelector();
-        distinctUntilChangedOperator();
-        distinctUntilChangedWithKeySelector();
+        useDefaultIfEmpty();
+        useSwitchIfEmpty();
     }
 
     /**
-     * Used the distinct() to get the unique emission
+     * Used defaultIfEmpty() operator so the observer will emit at least a default value
+     * if the emission gets empty
      */
-    private static void distinctOperator() {
-        Observable.just(1, 1, 2, 2, 3, 3, 4, 5, 1, 2)
-                .distinct()
+    private static void useDefaultIfEmpty() {
+        Observable.just(1,2,3,4,5)
+                .filter(item -> item > 10)
+                .defaultIfEmpty(100)
                 .subscribe(System.out::println);
     }
 
     /**
-     * Used the distinct based on the item's property to distinguish emission
+     * This will switch to some alternative Observable Source
+     * if the emission gets empty
      */
-    private static void distinctWithKeySelector() {
-        Observable.just("foo", "fool", "super", "foss", "foil")
-                .distinct(String::length)
-                .subscribe(System.out::println);
-    }
-
-    /**
-     * Used distinctUntilChanged() to avoid consecutive duplicate items one after another
-     */
-    private static void distinctUntilChangedOperator() {
-        Observable.just(1, 1, 2, 2, 3, 3, 4, 5, 1, 2)
-                .distinctUntilChanged()
-                .subscribe(System.out::println);
-    }
-
-    /**
-     * Used distinctUntilChangedOperator() based on the item's property to distinguish the consecutive duplicate items
-     */
-    private static void distinctUntilChangedWithKeySelector() {
-        Observable.just("foo", "fool", "super", "foss", "foil")
-                .distinctUntilChanged(String::length)
+    private static void useSwitchIfEmpty() {
+        Observable.just(1,2,3,4,5)
+                .filter(item -> item > 10)
+                .switchIfEmpty(Observable.just(6,7,8,9,10))
                 .subscribe(System.out::println);
     }
 }
