@@ -1,50 +1,53 @@
 import io.reactivex.Observable;
 
+import java.util.Comparator;
+
 /**
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/6IwEvHH_BRk
- * Subscribe here -> https://youtu.be/T10dfR83O4U
+ * https://youtu.be/jnxoOup1eY0
+ * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * Here we've used repeat operator to repeat emissions
- * and Scan operator to perform operations on accumulator and the next item
+ * Here we've used sorted operator to sort the emission based on different criteria
  * <p>
- * Created By Mithu Roy on 26/05/2019
+ * Created By Mithu Roy on 02/06/2019
  */
 
 public class Main {
+
     public static void main(String[] args) {
-        useRepeat();
-        useScan();
-        useScanWithInitialValue();
+        useSorted();
+        useSortedWithOwnComparator();
+        useSortedOnNonComparator();
     }
 
     /**
-     * This used repeat operator to specify how many times emission witll repeat
+     * This used sorted operator to sort the operator
      */
-    private static void useRepeat() {
-        Observable.just(1, 2, 3, 4, 5)
-                .repeat(3)
+    private static void useSorted() {
+        Observable.just(3, 5, 2, 4, 1)
+                .sorted()
                 .subscribe(System.out::println);
     }
 
     /**
-     * This uses scan operator to print the sum of the previously emitted item and current one that is going to emit
+     * This used sorted operator along with Comparators reverse function
+     * to sort and reverse the emission
      */
-    private static void useScan() {
-        Observable.just(1, 2, 3, 4, 5)
-                .scan((accumulator, next) -> accumulator + next)
+    private static void useSortedWithOwnComparator() {
+        Observable.just(3, 5, 2, 4, 1)
+                .sorted(Comparator.reverseOrder())
                 .subscribe(System.out::println);
     }
 
     /**
-     * This uses scan operator print the sum of the previously emitted item and current one that is going to emit,
-     * but this also takes the initial emission into consideration by specifying an initial value
+     * This used sorted operator along with Integer's compare function to
+     * sort the emission based on their length
      */
-    private static void useScanWithInitialValue() {
-        Observable.just(1, 2, 3, 4, 5)
-                .scan(10, (accumulator, next) -> accumulator + next)
+    private static void useSortedOnNonComparator() {
+        Observable.just("foo", "john", "bar")
+                .sorted((first, second) -> Integer.compare(first.length(), second.length()))
                 .subscribe(System.out::println);
     }
 
