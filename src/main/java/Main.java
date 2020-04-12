@@ -1,75 +1,49 @@
 import io.reactivex.Observable;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/WA3TdQEoKOo
+ * https://youtu.be/8YxIGNJZbfo
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * Here we've 2 error handling operators to showcase some techniques to handle errors in RxJava
+ * Here we've 3 Do/Action operators to show how we can handle specific block stream, before it reaches
  * <p>
- * Created By Mithu Roy on 29/03/2020
+ * Created By Mithu Roy on 05/04/2020
  */
 
 public class Main {
 
     public static void main(String[] args) {
-        retryWithPredicate();
-        exRetry();
-        exRetryUntil();
+        exDoOnSubscribe();
+        exDoOnNext();
+        exDoOnComplete();
     }
 
     /**
-     * This retry block try to analyze the error and take decision based on the error whether to retry or not
-     * based on our logic inside that block
+     * doOnSubscribe will get the disposable as soon as we subscribe the specific observable
      */
-    private static void retryWithPredicate() {
-        Observable.error(new IOException("This is an example error"))
-                .retry(error -> {
-                    if (error instanceof IOException) {
-                        System.out.println("retrying");
-                        return true;
-                    } else return false;
-                })
-                .subscribe(
-                        System.out::println,
-                        error -> System.out.println("Subscribed Error: " + error.getMessage()),
-                        () -> System.out.println("Completed"));
+    private static void exDoOnSubscribe() {
+        Observable.just(1, 2, 3, 4, 5)
+                .doOnSubscribe(disposable -> System.out.println("doOnSubscribe: Subscribed"))
+                .subscribe(System.out::println);
     }
 
     /**
-     * This retry takes the number and tries to retry subscribing and getting the data from the observable again
+     * doOnNext will get the item just before it reaches to the downstream of onNext
      */
-    private static void exRetry() {
-        Observable.error(new Exception("This is an example error"))
-                .retry(3)
-                .subscribe(
-                        System.out::println,
-                        error -> System.out.println("Subscribed Error: " + error.getMessage()),
-                        () -> System.out.println("Completed"));
+    private static void exDoOnNext() {
+        Observable.just(1, 2, 3, 4, 5)
+                .doOnNext(item -> System.out.println("doOnNext: " + ++item))
+                .subscribe(System.out::println);
     }
 
     /**
-     * retryUntil depends on the boolean that we pass, it keeps retrying until we pass true based on the logic
+     * doOnComplete will get void just before it reaches to the downstream of onComplete
      */
-    private static void exRetryUntil() {
-        AtomicInteger atomicInteger = new AtomicInteger();
-        Observable.error(new Exception("This is an example error"))
-                .doOnError(error -> {
-                    System.out.println(atomicInteger.get());
-                    atomicInteger.getAndIncrement();
-                })
-                .retryUntil(() -> {
-                    System.out.println("Retrying");
-                    return atomicInteger.get() >= 3;
-                })
-                .subscribe(
-                        System.out::println,
-                        error -> System.out.println("Subscribed Error: " + error.getMessage()),
-                        () -> System.out.println("Completed"));
+    private static void exDoOnComplete() {
+        Observable.just(1, 2, 3, 4, 5)
+                .doOnComplete(() -> System.out.println("doOnComplete: Completed"))
+                .subscribe(System.out::println, System.out::print, () -> System.out.println("Completed"));
     }
 }
