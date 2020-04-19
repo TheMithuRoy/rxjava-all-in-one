@@ -4,46 +4,39 @@ import io.reactivex.Observable;
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/8YxIGNJZbfo
+ * https://youtu.be/3s9yW5k9J1A
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * Here we've 3 Do/Action operators to show how we can handle specific block stream, before it reaches
+ * Here we've 2 Do/Action operators to show how we can handle callback after a stream or observable is done with
  * <p>
- * Created By Mithu Roy on 05/04/2020
+ * Created By Mithu Roy on 12/04/2020
  */
 
 public class Main {
 
     public static void main(String[] args) {
-        exDoOnSubscribe();
-        exDoOnNext();
-        exDoOnComplete();
+        exDoFinally();
+        exDoOnDispose();
     }
 
     /**
-     * doOnSubscribe will get the disposable as soon as we subscribe the specific observable
+     * doFinally works after the observable is done or onComplete
      */
-    private static void exDoOnSubscribe() {
+    private static void exDoFinally() {
         Observable.just(1, 2, 3, 4, 5)
-                .doOnSubscribe(disposable -> System.out.println("doOnSubscribe: Subscribed"))
+                .doFinally(() -> System.out.println("doFinally: Completed"))
                 .subscribe(System.out::println);
     }
 
     /**
-     * doOnNext will get the item just before it reaches to the downstream of onNext
+     * doOnDispose only works if we can dispose the observable explicitly
+     * before onComplete or onError
      */
-    private static void exDoOnNext() {
+    private static void exDoOnDispose() {
         Observable.just(1, 2, 3, 4, 5)
-                .doOnNext(item -> System.out.println("doOnNext: " + ++item))
+                .doOnDispose(() -> System.out.println("onDispose: Disposed"))
+                .doOnSubscribe(disposable -> disposable.dispose())
                 .subscribe(System.out::println);
-    }
 
-    /**
-     * doOnComplete will get void just before it reaches to the downstream of onComplete
-     */
-    private static void exDoOnComplete() {
-        Observable.just(1, 2, 3, 4, 5)
-                .doOnComplete(() -> System.out.println("doOnComplete: Completed"))
-                .subscribe(System.out::println, System.out::print, () -> System.out.println("Completed"));
     }
 }
