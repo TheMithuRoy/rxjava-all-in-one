@@ -2,111 +2,64 @@ import io.reactivex.Observable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is an example of illustration of the video series RxJava All In One.
  * <p>
  * You can watch the video implementation of this source code for free on YouTube here:
- * https://youtu.be/Ih4CKI4e3sw
+ * https://youtu.be/e5Y5EAFuLjw
  * Subscribe here -> http://bit.ly/MithuRoyOnYoutube
  * <p>
- * Here we're Using merge operator to merge Two or more or list of Observables
+ * Here we're Using zip, zipWith and zipIterable operator to merge the emission in the Zipper function
  * <p>
- * Created By Mithu Roy on 19/04/2020
+ * Created By Mithu Roy on 26/04/2020
  */
 
 public class Main {
 
     public static void main(String[] args) {
-        exMerge();
-        exMergeArray();
-        exMergeIterable();
-        exMergeWith();
-        exMergeInfinite();
+        exZip();
+        exZipWith();
+        exZipIterable();
     }
 
     /**
-     * Uses the static merge function to merge Observables
-     * This function can take at most 4 Observables
+     * Uses Zip operator to get the stream on the Zipper function
      */
-    private static void exMerge() {
+    private static void exZip() {
         Observable<Integer> oneToFive = Observable.just(1, 2, 3, 4, 5);
-        Observable<Integer> sixToTen = Observable.just(6, 7, 8, 9, 10);
+        Observable<Integer> sixToTen = Observable.range(6, 5);
+        Observable<Integer> elevenToFifteen = Observable.fromIterable(Arrays.asList(11, 12, 13, 14, 15));
 
-        Observable.merge(sixToTen, oneToFive).subscribe(System.out::println);
-    }
-
-    /**
-     * Uses the static mergeArray function to merge unlimited Observables, as it takes vararg
-     */
-    private static void exMergeArray() {
-        Observable<Integer> oneToFive = Observable.just(1, 2, 3, 4, 5);
-        Observable<Integer> sixToTen = Observable.just(6, 7, 8, 9, 10);
-        Observable<Integer> elevenToFifteen = Observable.just(11, 12, 13, 14, 15);
-        Observable<Integer> sixteenToTwenty = Observable.just(16, 17, 18, 19, 20);
-        Observable<Integer> twentyOneToTwentyFive = Observable.just(21, 22, 23, 24, 25);
-
-        Observable.mergeArray(oneToFive, sixToTen, elevenToFifteen, sixteenToTwenty, twentyOneToTwentyFive)
+        Observable.zip(oneToFive, sixToTen, elevenToFifteen, (a, b, c) -> a + b + c)
                 .subscribe(System.out::println);
 
     }
 
     /**
-     *  Uses the static merge function to merge List of Observables
+     * Uses ZipWith operator on the Observable to easily zip One Observable with another
      */
-    private static void exMergeIterable() {
+    private static void exZipWith() {
+        Observable<Integer> oneToFive = Observable.just(1, 2, 3, 4, 5);
+        Observable<Integer> sixToTen = Observable.fromIterable(Arrays.asList(6, 7, 8, 9, 10));
+
+        oneToFive.zipWith(sixToTen, Integer::sum)
+                .subscribe(System.out::println);
+    }
+
+    /**
+     * Uses zipIterable operator which takes List of Observables and provides the zipped emission in an array
+     */
+    private static void exZipIterable() {
         Observable<Integer> oneToFive = Observable.just(1, 2, 3, 4, 5);
         Observable<Integer> sixToTen = Observable.just(6, 7, 8, 9, 10);
         Observable<Integer> elevenToFifteen = Observable.just(11, 12, 13, 14, 15);
-        Observable<Integer> sixteenToTwenty = Observable.just(16, 17, 18, 19, 20);
-        Observable<Integer> twentyOneToTwentyFive = Observable.just(21, 22, 23, 24, 25);
-        List<Observable<Integer>> observableList =
-                Arrays.asList(oneToFive, sixToTen, elevenToFifteen, sixteenToTwenty, twentyOneToTwentyFive);
 
-        Observable.merge(observableList).subscribe(System.out::println);
+        List<Observable<Integer>> observables = Arrays.asList(
+                oneToFive, sixToTen, elevenToFifteen
+        );
 
+        Observable.zipIterable(observables, Arrays::toString, true, 1)
+                .subscribe(System.out::println);
     }
-
-    /**
-     * All Observables has the mergeWith function, to easily merge it with another Observable
-     * We can't merge with more than one Observable in this case
-     */
-    private static void exMergeWith() {
-        Observable<Integer> oneToFive = Observable.just(1, 2, 3, 4, 5);
-        Observable<Integer> sixToTen = Observable.just(6, 7, 8, 9, 10);
-
-        oneToFive.mergeWith(sixToTen).subscribe(System.out::println);
-    }
-
-    /**
-     * This shows an implementation of the merge function with infinite Observables
-     * As interval emits data as given time
-     */
-    private static void exMergeInfinite() {
-        Observable<String> infinite1 = Observable.interval(1, TimeUnit.SECONDS)
-                .map(item -> "From infinite1: " + item);
-        Observable<String> infinite2 = Observable.interval(2, TimeUnit.SECONDS)
-                .map(item -> "From infinite2: " + item);
-
-
-        infinite1.mergeWith(infinite2).subscribe(System.out::println);
-
-        pause(6050);
-    }
-
-
-    /**
-     * This method sleep the main thread for specified duration
-     *
-     * @param duration Sleep Duration in Milliseconds
-     */
-    private static void pause(int duration) {
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
